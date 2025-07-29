@@ -9,16 +9,18 @@ scripts/.Rhistory
 scripts/apikey.R
 
 # old/deprecated files and scripts
-old/
+old/*
 
 # results
-results/
+results/*
 
 # plots
-plots/
+plots/*
 
 # data
-data/
+data/*
+!data/master_paired_languages_2.xlsx
+!data/GWAS_language_groupings.xlsx
 
 # # data
 # data/david_centroids.zip
