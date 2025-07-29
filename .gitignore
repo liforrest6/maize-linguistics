@@ -1,0 +1,39 @@
+# R files
+.DS_Store
+.Rhistory
+scripts/.DS_Store
+scripts/.ipynb_checkpoints
+scripts/.Rhistory
+
+# api key for stadia maps
+scripts/apikey.R
+
+# old/deprecated files and scripts
+old/
+
+# results
+results/
+
+# plots
+plots/
+
+# data
+data/
+
+# # data
+# data/david_centroids.zip
+# data/glottolog_languoid.csv.zip
+# data/indigenous-american-genomes-popinfo.csv
+# data/K_allChr.csv
+# data/maize_sample_ids_withLatLong.txt
+# data/SeeDs_passport_fulll_2017.04.25_16.08.12.txt
+# data/Target_sample_ID_mapping_DOI_and_information.txt
+
+# # check on shape file data
+# data/indigenousLanguages_shp
+# data/Languages_NAm
+# data/SimonGreenhill-utoaztecan-analyses-b9cc423
+# data/levenshteinLanguageDistances.csv
+# data/trees
+
+
