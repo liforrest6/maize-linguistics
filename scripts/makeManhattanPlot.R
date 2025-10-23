@@ -43,7 +43,7 @@ manual_manhattan = function(results, highlight_SNP_list, chr_filter = NA, sig = 
         yintercept = -log10(sig), color = "blue",
         linetype = "dashed"
       ) +
-      geom_point(alpha = 0.75, size = 0.5) +
+      geom_point(alpha = 0.5, size = 0.5) +
       scale_x_continuous(
         label = axis_set %>% pull((!!sym(chr_col))),
         breaks = axis_set$center
@@ -60,7 +60,7 @@ manual_manhattan = function(results, highlight_SNP_list, chr_filter = NA, sig = 
         x = NULL,
         y = "-log<sub>10</sub>(p)"
       ) +
-      theme_minimal() +
+      theme_bw() +
       theme(
         legend.position = "none",
         panel.grid.major.x = element_blank(),

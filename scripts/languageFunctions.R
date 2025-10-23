@@ -3,6 +3,22 @@
 ## Functions associated with maize linguistics project
 ## Intended to be loaded via source()
 
+library(sp)
+library(ggmap)
+library(sf)
+library(ggtree)
+library(readxl)
+library(ape)
+library(treeio)
+library(rgdal)
+library(ggtext)
+library(cowplot)
+library(grid)
+library(gridExtra)
+library(png)
+library(ggplotify)
+library(stringr)
+
 ## edit bbox for projections on ggmap
 ggmap_bbox <- function(map) {
   if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
@@ -34,7 +50,7 @@ projectCoordinates = function(coord) {
 ## given passport data of maize data, limit to central america countries, and keep only those with latitude and longitude
 filterMaizeCoordinatesbyCountry = function(maize_seed_data) {
   #filter by countries to just central America and with complete country code data = 9478
-  maize_seed_data <- maize_seed_data[maize_seed_data$countries_country_name %in% c('MEXICO','BELIZE','GUATEMALA','EL SALVADOR','HONDURAS','NICARAGUA','COSTA RICA','PANAMA'), ]
+  maize_seed_data <- maize_seed_data[maize_seed_data$countries_country_name %in% c('MEXICO','BELIZE','GUATEMALA','EL SALVADOR','HONDURAS','NICARAGUA','COSTA RICA'), ]
   maize_seed_data_filtered_by_countrycode <- maize_seed_data[complete.cases(maize_seed_data[ , c('locations_latitude', 'locations_longitude')]), ]
   
   #remove any accessions without GWAS data
@@ -247,6 +263,19 @@ unfold<-function(X){
   x<-vector()
   for(i in 2:nrow(X)) x<-c(x,X[i,1:i-1])
   return(x)
+}
+
+# unfold converts the lower diagonal elements of a matrix into a vector
+# unfold is called by MMRR
+gaussian_unfold<-function(X, bandwidth){
+  sd_X = sd(X)
+  x<-vector()
+  for(i in 2:nrow(X)) x<-c(x,X[i,1:i-1])
+  return(scale(exp(-x/sd_X/bandwidth)))
+}
+
+scale_variance = function(x) {
+  return((x - min(x))/(max(x) - min(x)))
 }
 
 kinship2dist<-function(x){
