@@ -12,10 +12,16 @@
 #SBATCH --mail-type=END,FAIL
 #SBATCH --mail-user=frrli@ucdavis.edu
 
-module load gemma
+
+## authors: Forrest Li and Sowmya Mambakkam
+## scripts to prepare data formats for linguistic GWAS.  Note that One_hot_encoding.R and makeGWASbinaryfiles.R should be run first to generate binary files
+
+
+# module load gemma
 module load vcftools
 module load bcftools
 # module load R
+
 
 #Rscript /group/jrigrp10/maize-linguistics/scripts/One_hot_encoding.R
 #echo '0_1 done'
@@ -41,12 +47,14 @@ vcftools --vcf /group/jrigrp10/smambakk/language/zeaGBS20161020ZeaAlbertoTaxaAGP
 --recode-INFO-all \
 --out ${data_dir}/${language}/${language}.v4.imputed
 
+## generate chromosome file as GEMMA does not keep chromosome numbers afterward
 sed 1,10d ${data_dir}/${language}.v4.imputed.recode.vcf | cut -f 1-3 > ${data_dir}/${language}_chromosome.txt
 
+## use bcftools to generate dosage file
 bcftools +dosage ${data_dir}/${language}/${language}.v4.imputed.recode.vcf > ${data_dir}/${language}/${language}.dosage.vcf
 cut -f2- ${data_dir}/${language}/${language}.dosage.vcf | sed '1d' > ${data_dir}/${language}/${language}.dosage.gemma.vcf #Turn your VCF into dosage
 
-#Making kinship matrix
+#Making kinship matrix and use transpose.awk
 grep -wFf ${data_dir}/${language}/${language}_sample_list.txt  ${data_dir}/K_allChr.csv  > ${data_dir}/${language}/Kinship_filtered.csv #Filter for the unique IDs on columns
 awk -f /group/jrigrp10/maize-linguistics/scripts/transpose.awk ${data_dir}/${language}/Kinship_filtered.csv \
 | grep -wFf ${data_dir}/${language}/${language}_sample_list.txt - \

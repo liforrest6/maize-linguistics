@@ -17,7 +17,7 @@ module load gemma
 results_dir='/group/jrigrp10/maize-linguistics/results/'
 data_dir='/group/jrigrp10/maize-linguistics/data/'
 
-language='aztecan'
+language='otomanguean'
 
 if [ $language == 'mayan' ]; then
 	groupings=("Chicomuceltec"
@@ -60,11 +60,15 @@ do
 	# -o ${groupings[$i]}_results
 
 	cut -f2- /group/jrigrp10/maize-linguistics/results/${language}_gemma_output/${groupings[$i]}_results.assoc.txt | \
-	awk 'NR==FNR{a[$2]=$1;next}{OFS="\t"}{print a[$1], $0}' /group/jrigrp10/maize-linguistics/data/${language}/${language}_chromosome.txt - | \
-	awk -F'\t' '{print $1"_"$2 FS $0}' -  | \
+	awk 'NR==FNR{a[$2]=$1; b[$2]=$3; next}{OFS="\t"}{print b[$1], a[$1], $0}' /group/jrigrp10/maize-linguistics/data/${language}/${language}_chromosome.txt - | \
+	# awk -F'\t' '{print $1"_"$2 FS $0}' -  | \
 	cut -f1-3,16 - | \
 	sed '1c\SNP\tCHR\tBP\tP' > /group/jrigrp10/maize-linguistics/results/${language}_gemma_output/${groupings[$i]}_GWAS_results.txt
 
 done
 
-
+	# cut -f2- /group/jrigrp10/maize-linguistics/results/mayan_gemma_output/Yucatec_results.assoc.txt | \
+	# awk 'NR==FNR{a[$2]=$1; b[$2]=$3; next}{OFS="\t"}{print b[$1], a[$1], $0}' /group/jrigrp10/maize-linguistics/data/mayan/mayan_chromosome.txt - | \
+	# # awk -F'\t' '{print $1"_"$2 FS $0}' -  | \
+	# cut -f1-3,16 - | \
+	# sed '1c\SNP\tCHR\tBP\tP' | head

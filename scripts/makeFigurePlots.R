@@ -326,44 +326,44 @@ marrangeGrob(fig2_plots, nrow = 3, ncol =1)
 
 ggplot(as.ggplot(rasterGrob(as.raster(readPNG('../plots/feems_haynie_10res_HaynieNL.png')))))
 
-### create plot for Sam's human association loci ########################################################
-human_gwas_results<-read_tsv("../results/21km_raw_LDprune_MAF0.01_LatLongElevAdmixPC1_10_lm_results.tsv")
-human_gwas_pos = read_tsv("../results/LDprune_MAF0.01_21km_MaizeGBS_SNP_pos.tsv")
-human_gwas_results = cbind(human_gwas_pos, human_gwas_results)
-colnames(human_gwas_results) = c('CHROM', 'POS', 'SNP', 'ID', 'r.squared', 'adj.r.squared')
-
-human_max_bp = human_gwas_results %>% group_by(CHROM) %>% 
-  summarise(max_bp = max(POS), center = floor(mean(POS))) %>% 
-  mutate(bp_add = lag(cumsum(max_bp), default = 0),
-         center_add = bp_add + center)
-human_gwas_results = human_gwas_results %>% inner_join(human_max_bp, by = 'CHROM') %>% mutate(cumulative_bp = POS + bp_add)
-
-human_gwas_plot = ggplot(human_gwas_results, aes(x = cumulative_bp, y = adj.r.squared, color = as.factor(CHROM))) +
-  geom_point(alpha = 0.3) +
-  scale_x_continuous(
-    label = max_bp %>% pull(CHROM),
-    breaks = max_bp %>% pull(center_add)) +
-  scale_color_manual(values = rep(
-    c("grey4", "grey30"),
-    unique(length(max_bp %>% pull(CHROM)))
-  )) + 
-  labs(x = 'Chromosome') +
-  theme_bw() +
-  theme(legend.position = 'none',
-        axis.text = element_text(size = 14)) +
-  ggtitle('R-squared outliers from human PCs')
-
-
-(figure_4 = plot_grid(all_gwas_plots, 
-                        plot_grid(yucatec_01_plot, otomi_04_plot, otomi_09_plot, cora_04_plot, nrow = 4, labels = c('D', 'E', 'F', 'G')),
-                        ncol = 2)
-)
-
-ggsave('fig4_prototype_101725.pdf',
-       plot = figure_4, 
-       device = 'pdf', 
-       path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
-       width = 18, height = 16, units = 'cm')
+### create plot for human association loci ########################################################
+# human_gwas_results<-read_tsv("../results/21km_raw_LDprune_MAF0.01_LatLongElevAdmixPC1_10_lm_results.tsv")
+# human_gwas_pos = read_tsv("../results/LDprune_MAF0.01_21km_MaizeGBS_SNP_pos.tsv")
+# human_gwas_results = cbind(human_gwas_pos, human_gwas_results)
+# colnames(human_gwas_results) = c('CHROM', 'POS', 'SNP', 'ID', 'r.squared', 'adj.r.squared')
+# 
+# human_max_bp = human_gwas_results %>% group_by(CHROM) %>% 
+#   summarise(max_bp = max(POS), center = floor(mean(POS))) %>% 
+#   mutate(bp_add = lag(cumsum(max_bp), default = 0),
+#          center_add = bp_add + center)
+# human_gwas_results = human_gwas_results %>% inner_join(human_max_bp, by = 'CHROM') %>% mutate(cumulative_bp = POS + bp_add)
+# 
+# human_gwas_plot = ggplot(human_gwas_results, aes(x = cumulative_bp, y = adj.r.squared, color = as.factor(CHROM))) +
+#   geom_point(alpha = 0.3) +
+#   scale_x_continuous(
+#     label = max_bp %>% pull(CHROM),
+#     breaks = max_bp %>% pull(center_add)) +
+#   scale_color_manual(values = rep(
+#     c("grey4", "grey30"),
+#     unique(length(max_bp %>% pull(CHROM)))
+#   )) + 
+#   labs(x = 'Chromosome') +
+#   theme_bw() +
+#   theme(legend.position = 'none',
+#         axis.text = element_text(size = 14)) +
+#   ggtitle('R-squared outliers from human PCs')
+# 
+# 
+# (figure_4 = plot_grid(all_gwas_plots, 
+#                         plot_grid(yucatec_01_plot, otomi_04_plot, otomi_09_plot, cora_04_plot, nrow = 4, labels = c('D', 'E', 'F', 'G')),
+#                         ncol = 2)
+# )
+# 
+# ggsave('fig4_prototype_101725.pdf',
+#        plot = figure_4, 
+#        device = 'pdf', 
+#        path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
+#        width = 18, height = 16, units = 'cm')
 
 #### full americas for both human and maize ###########
 

@@ -2,6 +2,9 @@ library(readxl)
 library(dplyr)
 library(data.table)
 
+## authors: Forrest Li, Sowmya Mambakkam
+## from GWAS language sub-family froupings, generate binary files for affiliation of each accession to that sub-family
+
 language_families = c('aztecan', 'mayan', 'otomanguean')
 
 ## read sheets from the excel grouping the languages together

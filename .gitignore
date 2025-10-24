@@ -10,12 +10,18 @@ scripts/apikey.R
 
 # old/deprecated files and scripts
 old/*
+scripts/scratch.R
+scripts/all-models.R
+scripts/submit-all-models.sh
+scripts/Language_Code.sh
+scripts/feems.ipynb
 
 # results
 results/*
 
 # plots
 plots/*
+scripts/Rplots.pdf
 
 # data
 data/*
