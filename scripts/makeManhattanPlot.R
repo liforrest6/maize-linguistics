@@ -79,7 +79,7 @@ manual_manhattan = function(results, highlight_SNP_list, chr_filter = NA, sig = 
 file_path = str_split_1(file_name, '/')
 grouping = str_split_1(file_path[length(file_path)], '_')[1]
 results = read.table(file_name, sep = '\t', header = T)
-p = manual_manhattan(results, highlight_SNP_list = list(), title = grouping)
+p = manual_manhattan(results, highlight_SNP_list = list(), title = grouping, sig = 8e-9)
 
 # do.call(file.path, as.list(file_path[-c(length(file_path))]), grouping, '_manhattan.png')
 

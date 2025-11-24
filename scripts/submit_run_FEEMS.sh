@@ -7,7 +7,7 @@
 #SBATCH -t 4:00:00
 #SBATCH --mem-per-cpu 20GB
 #SBATCH -n 4
-#SBATCH --array=11-14
+#SBATCH --array=23-26
 #SBATCH --account=jrigrp
 #SBATCH --partition=high2
 #SBATCH --mail-type=END,FAIL
@@ -37,15 +37,25 @@ lamb=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $4}' $con
 # Extract the node specific variance for the current $SLURM_ARRAY_TASK_ID
 node_specific_variance=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $5}' $config)
 
+# Extract whether bootstrapping for the current $SLURM_ARRAY_TASK_ID
+bootstrap=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $6}' $config)
+
 # Extract the rep number
-rep=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $6}' $config)
+rep=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $7}' $config)
+
+# Extract whether we are shuffling
+shuffle=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $8}' $config)
+
+
 
 # Print to a file a message that includes the current $SLURM_ARRAY_TASK_ID, the same name, and the sex of the sample
 echo "This is array task ${SLURM_ARRAY_TASK_ID}, \
 the downsample is ${dsample}, \
 the cross_validate is ${cross_validate}, \
 the lambda is ${lamb}, \
-the node_specific_variance is ${node_specific_variance},
-the rep is ${rep}"
+the node_specific_variance is ${node_specific_variance}, \
+the bootstrap parameter is ${bootstrap}, \
+the rep is ${rep}, \
+the shuffle parameter is ${shuffle}"
 
-python /group/jrigrp10/maize-linguistics/scripts/run_FEEMS.py -d ${dsample} -c ${cross_validate} -l ${lamb} -n ${node_specific_variance} -r ${rep}
+python /group/jrigrp10/maize-linguistics/scripts/run_FEEMS.py -d ${dsample} -c ${cross_validate} -l ${lamb} -n ${node_specific_variance} -b ${bootstrap} -r ${rep} -s ${shuffle} 

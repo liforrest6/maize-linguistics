@@ -335,56 +335,108 @@ yucatan_genotypes_transform = projectMaizeCoordinates(yucatan_genotypes %>% muta
                                                                                Latitude = LatNew))
 cora_genotypes_transform = projectMaizeCoordinates(cora_genotypes %>% mutate(Longitude = LongNew,
                                                                                Latitude = LatNew))
+yucatan_genotypes_transform = yucatan_genotypes_transform %>% 
+  mutate(S1_164490966_dosage = case_when(
+    S1_164490966 == "0|0" ~ "Ref",
+    S1_164490966 == "0|1" ~ "Het",
+    S1_164490966 == "1|0" ~ "Het",
+    S1_164490966 == "1|1" ~ "Alt"),
+    S2_197685637_dosage = case_when(
+      S2_197685637 == "0|0" ~ "Ref",
+      S2_197685637 == "0|1" ~ "Het",
+      S2_197685637 == "1|0" ~ "Het",
+      S2_197685637 == "1|1" ~ "Alt"))
 
-(otomi_alleles = ggmap(mesoamerica_terrain_kernels) +
-    geom_sf(data = otomi_genotypes_transform, aes(color = S4_175276436),
+otomi_genotypes_transform = otomi_genotypes_transform %>% 
+  mutate(S4_175276436_dosage = case_when(
+    S4_175276436 == "0|0" ~ "Ref",
+    S4_175276436 == "0|1" ~ "Het",
+    S4_175276436 == "1|0" ~ "Het",
+    S4_175276436 == "1|1" ~ "Alt"),
+    S5_194110157_dosage = case_when(
+      S5_194110157 == "0|0" ~ "Ref",
+      S5_194110157 == "0|1" ~ "Het",
+      S5_194110157 == "1|0" ~ "Het",
+      S5_194110157 == "1|1" ~ "Alt"))
+
+(otomi_04_alleles = ggmap(otomanguean_terrain_kernels) +
+    geom_sf(data = otomi_genotypes_transform, aes(color = S4_175276436_dosage),
             size = 0.5,
             alpha = 0.7,
             inherit.aes = F) +
-    theme(legend.position = "right",
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 6),
-          legend.text=element_text(size=8),
+    guides(color = guide_legend(title = "S4_175276436 genotype") ) +
+    scale_color_manual(values = c('red', 'purple', 'blue'))+
+    theme(legend.position = "bottom",
+          axis.ticks = element_blank(),
+          axis.text = element_blank(),
+          legend.text=element_text(size=6),
           legend.title = element_text(size = 8),
-          plot.title = element_text(size = 12)) +
-    ggtitle('Otomi GWAS peak allele') +
+          plot.title = element_text(size = 10)) +
+    ggtitle('Otomi GWAS chr 4 peak allele') +
     xlab('') +
     ylab('')
 )
 
-(cora_alleles = ggmap(mesoamerica_terrain_kernels) +
-    geom_sf(data = cora_genotypes_transform, aes(color = S4_9485629),
+(otomi_05_alleles = ggmap(otomanguean_terrain_kernels) +
+    geom_sf(data = otomi_genotypes_transform, aes(color = S5_194110157_dosage),
             size = 0.5,
             alpha = 0.7,
             inherit.aes = F) +
-    theme(legend.position = "right",
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 6),
-          legend.text=element_text(size=8),
+    guides(color = guide_legend(title = "S5_194110157 genotype") ) +
+    scale_color_manual(values = c('red', 'purple', 'blue'))+
+    theme(legend.position = "bottom",
+          axis.ticks = element_blank(),
+          axis.text = element_blank(),
+          legend.text=element_text(size=6),
           legend.title = element_text(size = 8),
-          plot.title = element_text(size = 12)) +
-    ggtitle('Cora GWAS peak allele') +
+          plot.title = element_text(size = 10)) +
+    ggtitle('Otomi GWAS chr 5 peak allele') +
     xlab('') +
     ylab('')
 )
 
-(yucatan_alleles = ggmap(mesoamerica_terrain_kernels) +
-    geom_sf(data = yucatan_genotypes_transform, aes(color = S1_164490966),
+
+(yucatan_01_alleles = ggmap(mayan_terrain_kernels) +
+    geom_sf(data = yucatan_genotypes_transform, aes(color = S1_164490966_dosage),
             size = 0.5,
             alpha = 0.7,
             inherit.aes = F) +
-    theme(legend.position = "right",
-          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 6),
-          legend.text=element_text(size=8),
+    guides(color = guide_legend(title = "S1_164490966 genotype") ) +
+    scale_color_manual(values = c('red', 'purple', 'blue'))+
+    theme(legend.position = "bottom",
+          axis.ticks = element_blank(),
+          axis.text = element_blank(),
+          legend.text=element_text(size=6),
           legend.title = element_text(size = 8),
-          plot.title = element_text(size = 12)) +
-    ggtitle('Yucatan GWAS peak allele') +
+          plot.title = element_text(size = 10)) +
+    ggtitle('Yucatan GWAS chr 1 peak allele') +
     xlab('') +
     ylab('')
 )
 
-(allele_plots = plot_grid(yucatan_alleles, otomi_alleles, cora_alleles, nrow = 3, labels = 'AUTO'))
+(yucatan_02_alleles = ggmap(mayan_terrain_kernels) +
+  geom_sf(data = yucatan_genotypes_transform, aes(color = S2_197685637_dosage),
+          size = 0.5,
+          alpha = 0.7,
+          inherit.aes = F) +
+  guides(color = guide_legend(title = "S1_164490966 genotype") ) +
+  scale_color_manual(values = c('red', 'purple', 'blue'))+
+    theme(legend.position = "bottom",
+          axis.ticks = element_blank(),
+          axis.text = element_blank(),
+          legend.text=element_text(size=6),
+          legend.title = element_text(size = 8),
+          plot.title = element_text(size = 10)) +
+  ggtitle('Yucatan GWAS chr 2 peak allele') +
+  xlab('') +
+  ylab(''))
+
+(allele_plots = plot_grid(yucatan_01_alleles, yucatan_02_alleles, 
+                          otomi_04_alleles, otomi_05_alleles, 
+                          nrow = 2, labels = 'AUTO'))
 
 ggsave('allele_maps.pdf',
        plot = allele_plots, 
        device = 'pdf', 
        path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
-       width = 11, height = 18, units = 'cm')
+       width = 18, height = 16, units = 'cm')

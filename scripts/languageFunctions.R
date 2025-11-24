@@ -3,6 +3,8 @@
 ## Functions associated with maize linguistics project
 ## Intended to be loaded via source()
 
+library(dplyr)
+library(vroom)
 library(sp)
 library(ggmap)
 library(sf)
@@ -18,6 +20,8 @@ library(gridExtra)
 library(png)
 library(ggplotify)
 library(stringr)
+library(scattermore)
+library(scales)
 
 ## edit bbox for projections on ggmap
 ggmap_bbox <- function(map) {

@@ -36,7 +36,9 @@ parser.add_argument('-d', '--dsample', help = 'downsample number, or 0 if not do
 parser.add_argument('-c', '--cross_validate', help = 'do cross validation?', type = int, default = 0)
 parser.add_argument('-l', '--lamb', help = 'lambda smoothing value', type = int, default = 10)
 parser.add_argument('-n', '--node_specific_variance', help = 'do FEEMS 2.0?', type = int, default = 0)
+parser.add_argument('-b', '--bootstrap', help = 'bootstrap?', type = int, default = 0)
 parser.add_argument('-r', '--rep', help = 'rep_number', type = int, default = 1)
+parser.add_argument('-s', '--shuffle', help = 'shuffle coordinates?', type = int, default = 0)
 
 args = parser.parse_args()
 
@@ -44,7 +46,9 @@ print('Downsampling to {}'.format(args.dsample))
 print('Cross validation? {}'.format(args.cross_validate))
 print('Lambda = {}'.format(args.lamb))
 print('FEEMS 2.0? {}'.format(args.node_specific_variance))
+print('bootstrap? {}'.format(args.bootstrap))
 print('Rep {}'.format(args.rep))
+print('Shuffling? {}'.format(args.shuffle))
 
 # change matplotlib fonts
 plt.rcParams["font.family"] = "Arial"
@@ -68,6 +72,11 @@ coord = np.loadtxt(path_to_sample_coords)
 outer = np.loadtxt("{}/data/feems/outer_coords_mesoamerica_manual.txt".format(head_dir)) 
 
 print('Finish loading plink files')
+
+## shuffle coordinates
+if args.shuffle:
+        print('shuffling coordinates')
+        np.random.shuffle(coord)
 
 # ## import pruned SNPs
 pruned = pd.read_table("{}/data/feems/all_linguistics_samples_{}.prune.in".format(head_dir, dataset), names = ['keep'])
@@ -96,7 +105,8 @@ outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
 #---------- GRAPH SETUP ----------
 print('\nSetting up graph...')
 dsample = args.dsample
-sp_graph = SpatialGraph(genotypes, coord, grid, edges, scale_snps=True, downsample = dsample)
+bootstrap = args.bootstrap
+sp_graph = SpatialGraph(genotypes, coord, grid, edges, scale_snps=True, downsample = dsample, bootstrap = bootstrap)
 
 print('Finished setting up graph')
 
@@ -124,7 +134,12 @@ if args.cross_validate:
 #---------- BASELINE FEEMS FIT ----------
 print('\nFitting baseline FEEMS...')
 lamb_cv = args.lamb
-lamb_q_cv = 0.01
+if lamb_cv == 12:
+        lamb_q_cv = 0.01
+elif lamb_cv == 2:
+        lamb_q_cv = 100
+else:
+        lamb_q_cv = 10
 
 if args.node_specific_variance:
         sp_graph.fit(lamb = lamb_cv, lamb_q = lamb_q_cv, optimize_q='n-dim')
@@ -177,8 +192,8 @@ v.draw_map()
 v.draw_edges(use_weights=True)
 v.draw_edge_colorbar()
 
-fig.savefig(path_to_output_dir + "/baselineFEEMS-lambda_{}-dsample_{}-nsv_{}-cv_{}-rep_{}.png".format(args.lamb, args.dsample, 
-        args.node_specific_variance, args.cross_validate, args.rep), bbox_inches = 'tight')
+fig.savefig(path_to_output_dir + "/baselineFEEMS-lambda_{}-dsample_{}-nsv_{}-cv_{}-boot_{}-rep_{}-shuffle_{}.png".format(args.lamb, args.dsample, 
+        args.node_specific_variance, args.cross_validate, args.bootstrap, args.rep, args.shuffle), bbox_inches = 'tight')
 
 print('Finish printing baseline graph')
 

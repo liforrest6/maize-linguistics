@@ -1,0 +1,14 @@
+
+VCFtools - 0.1.16
+(C) Adam Auton and Anthony Marcketta 2009
+
+Parameters as interpreted:
+	--vcf /group/jrigrp11/seeds_vcf/zeaGBS20161020ZeaAlbertoTaxaAGPv4_forBeagle.imputed.vcf.vcf
+	--chr 9
+	--keep /group/jrigrp10/maize-linguistics/data/otomanguean/Otomi-only.txt
+	--maf 0.01
+
+Keeping individuals in 'keep' list
+After filtering, kept 33 out of 4732 Individuals
+After filtering, kept 23600 out of a possible 856300 Sites
+Run Time = 181.00 seconds

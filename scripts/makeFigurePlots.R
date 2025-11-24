@@ -5,6 +5,8 @@ library(png)
 library(cowplot)
 library(ggplotify)
 library(ggmap)
+library(dplyr)
+library(vroom)
 
 source('languageFunctions.R')
 source('apikey.R')
@@ -32,8 +34,8 @@ all_NL_accessions = rbind(otomanguean_NL_accessions, aztecan_NL_accessions, maya
                                       aztecan_haynie_accessions,
                                       mayan_haynie_accessions), 3857), 
             inherit.aes = F,
-            size = 0.2,
-            alpha = 0.4) +
+            size = 0.1,
+            alpha = 0.3) +
     scale_fill_discrete(name = '') +
     theme(legend.position = 'bottom',
           plot.margin = unit(c(.1,.1,.1,.1), 'cm')) +
@@ -109,41 +111,83 @@ mayan_haynie_tree_figure$tip.label[84] = 'HUASTEC_VERACRUZ'
 mayan_haynie_tree_figure$tip.label[83] = 'CHICOMUCELTEC'
 mayan_haynie_tree_figure$tip.label[85] = 'HUASTEC'}
 
-(mayan_tree_figure = ggtree(mayan_haynie_tree_figure) %>% 
-  scaleClade(126, .1) %>% # scale kiche
-  scaleClade(107, .1) %>% # scale mam
-  scaleClade(102, .5) %>% # scale tzotzil
-  scaleClade(88, .6) %>% # scale yucatan
-  scaleClade(161, .6) %>% # scale cakchiquel
-  scaleClade(163, .6) %>% # scale tzutujil
-  scaleClade(98, .6) %>% # scale chol
-  collapse(126, 'mixed', fill="darkgreen") %>% 
-  collapse(161, 'mixed', fill="salmon") %>% 
-  collapse(163, 'mixed', fill="magenta")  %>% 
-  collapse(166, 'mixed', fill="lightgreen") %>% 
-  collapse(165, 'mixed', fill="skyblue") %>% 
-  collapse(107, 'mixed', fill="turquoise") %>% 
-  collapse(102, 'mixed', fill = 'purple') %>% 
-  collapse(98, 'mixed', fill = 'orange') %>% 
-  collapse(88, 'mixed', fill = 'red') %>% 
-  collapse(101, 'mixed', fill = 'blue') %<+% haynie_mapping +
-  geom_tiplab(
-              color = 'black',
-              geom = 'label', 
-              label.padding = unit(0.15, 'lines'),
-              label.size = 0,
-              size = 1.8) + 
-  geom_cladelab(data = mayan_haynie_clades, 
-                mapping = aes(node = node, 
-                              label = clade),
-                geom = 'text', 
-                align = F, fontsize = 1.8, offset = 0.05) + 
-  xlim(0,3) + 
-  labs(fill = 'sub_grouping',
-       title = 'Mayan Haynie') +
+mayan_haynie_tree_figure_transform = mayan_haynie_tree_figure 
+# mayan_haynie_tree_figure_transform$edge.length[c(1,2)] = mayan_haynie_tree_figure$edge.length[c(1,2)] - 0.05
+mayan_haynie_tree_figure_transform$edge.length[mayan_haynie_tree_figure_transform$edge.length > 0.12] = mayan_haynie_tree_figure_transform$edge.length[mayan_haynie_tree_figure_transform$edge.length > 0.12] - 0.05
+
+(mayan_tree_figure = ggtree(mayan_haynie_tree_figure_transform) %>% 
+    scaleClade(126, .07) %>% # scale kiche
+    scaleClade(107, .1) %>% # scale mam
+    scaleClade(102, .5) %>% # scale tzotzil
+    scaleClade(88, .6) %>% # scale yucatan
+    scaleClade(161, .6) %>% # scale cakchiquel
+    scaleClade(163, .6) %>% # scale tzutujil
+    scaleClade(98, .6) %>% # scale chol
+    collapse(126, 'mixed', fill="darkgreen") %>% # kiche
+    collapse(161, 'mixed', fill="salmon") %>%  #cakchiquel
+    collapse(163, 'mixed', fill="magenta")  %>% #tzutujil
+    collapse(166, 'mixed', fill="lightgreen") %>% #kekchi
+    collapse(165, 'mixed', fill="skyblue") %>% #poqom
+    collapse(107, 'mixed', fill="turquoise") %>% #mam
+    collapse(102, 'mixed', fill = 'purple') %>% #tzotzil
+    collapse(98, 'mixed', fill = 'orange') %>% #chol
+    collapse(88, 'mixed', fill = 'red') %>% #yucatan, then tzeltal
+    collapse(101, 'mixed', fill = 'blue') %<+% haynie_mapping +
+    geom_tiplab(
+      color = 'black',
+      geom = 'label', 
+      label.padding = unit(0.15, 'lines'),
+      label.size = 0,
+      size = 1.8) + 
+    geom_cladelab(data = mayan_haynie_clades, 
+                  mapping = aes(node = node, 
+                                label = clade),
+                  geom = 'text', 
+                  align = F, fontsize = 1.8, offset = 0.05) + 
+    xlim(0,3) +
+    labs(fill = 'sub_grouping',
+         title = 'Mayan Haynie') +
     theme(plot.margin = unit(c(.1,.1,.1,.1), 'cm')) +
     ggtitle('')
 )
+
+## grayscale tree
+(mayan_tree_figure = ggtree(mayan_haynie_tree_figure_transform) %>% 
+    scaleClade(126, .07) %>% # scale kiche
+    scaleClade(107, .1) %>% # scale mam
+    scaleClade(102, .5) %>% # scale tzotzil
+    scaleClade(88, .6) %>% # scale yucatan
+    scaleClade(161, .6) %>% # scale cakchiquel
+    scaleClade(163, .6) %>% # scale tzutujil
+    scaleClade(98, .6) %>% # scale chol
+    collapse(126, 'mixed', fill="darkgray") %>% # kiche
+    collapse(161, 'mixed', fill="darkgray") %>%  #cakchiquel
+    collapse(163, 'mixed', fill="darkgray")  %>% #tzutujil
+    collapse(166, 'mixed', fill="darkgray") %>% #kekchi
+    collapse(165, 'mixed', fill="darkgray") %>% #poqom
+    collapse(107, 'mixed', fill="darkgray") %>% #mam
+    collapse(102, 'mixed', fill = 'darkgray') %>% #tzotzil
+    collapse(98, 'mixed', fill = 'darkgray') %>% #chol
+    collapse(88, 'mixed', fill = 'darkgray') %>% #yucatan, then tzeltal
+    collapse(101, 'mixed', fill = 'darkgray') %<+% haynie_mapping +
+    geom_tiplab(
+      color = 'black',
+      geom = 'label', 
+      label.padding = unit(0.15, 'lines'),
+      label.size = 0,
+      size = 1.8) + 
+    geom_cladelab(data = mayan_haynie_clades, 
+                  mapping = aes(node = node, 
+                                label = clade),
+                  geom = 'text', 
+                  align = F, fontsize = 1.8, offset = 0.05) + 
+    xlim(0,3) +
+    labs(fill = 'sub_grouping',
+         title = 'Mayan Haynie') +
+    theme(plot.margin = unit(c(.1,.1,.1,.1), 'cm')) +
+    ggtitle('')
+)
+
 geom_text(aes(label = node), hjust = 2, size = 2.5) ## node numbers
 
 #### stacked barplot for regression ################
@@ -248,6 +292,52 @@ all_haynie_polygon_map +
         axis.ticks = element_blank(),
         axis.text = element_blank())
 
+## no mayan only languages map
+# (figure_3 = plot_grid(plot_grid(all_haynie_polygon_map +
+#                                   theme(legend.position = 'top',
+#                                         legend.box.margin = unit(c(0, 0, 0, 0), 'cm'),
+#                                         legend.key.height = unit(.05, "cm"),
+#                                         legend.title = element_text(size = 6),
+#                                         legend.text = element_text(size = 6),
+#                                         plot.margin = unit(c(t = -0.10, 
+#                                                              r= -0.05, 
+#                                                              b = -0.10, 
+#                                                              l= -0.05), 'cm'),
+#                                         axis.ticks = element_blank(),
+#                                         axis.text = element_blank()),
+#                                 haynie_fst_plot + ggtitle('') + ylab('Fst'),
+#                                 ncol = 2, labels = c('A', 'B')), 
+#                      plot_grid(mayan_tree_figure + xlim(0, 0.6) , 
+#                                fig3_regression_plots_maize_PCs + 
+#                                  theme(legend.title = element_text(size = 7),
+#                                        legend.text = element_text(size = 7),
+#                                        legend.key.height = unit(.15, "cm")), 
+#                                ncol = 2, labels = c('C', 'D'), rel_widths = c(1, 1.1)),
+#                      nrow = 2, 
+#                      rel_heights = c(1, 1.2),
+#                      labels = c('', ''))
+# )
+
+mayan_haynie_map = ggmap(mayan_terrain_kernels_transformed) +
+  coord_sf(crs = st_crs(3857)) +
+  geom_sf(aes(fill = Name),
+          data = st_transform(haynie_lang %>% 
+                                filter(Name %in% mayan_haynie_mapping$`Polygon Name`), 
+                              3857),
+          inherit.aes = F,
+          alpha = 0.4) +
+  geom_sf(data = st_transform(mayan_haynie_accessions, 3857), 
+          inherit.aes = F,
+          size = .4, 
+          alpha = 0.7) +
+  theme(legend.position = "none",
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        axis.title = element_blank(),
+        title = element_text(size = 8)) +
+  ggtitle('Haynie Mayan languages')
+
+## with mayan languages map
 (figure_3 = plot_grid(plot_grid(all_haynie_polygon_map +
                                   theme(legend.position = 'top',
                                         legend.box.margin = unit(c(0, 0, 0, 0), 'cm'),
@@ -255,25 +345,29 @@ all_haynie_polygon_map +
                                         legend.title = element_text(size = 6),
                                         legend.text = element_text(size = 6),
                                         plot.margin = unit(c(t = -0.10, 
-                                                             r= -0.05, 
+                                                             r= 0, 
                                                              b = -0.10, 
-                                                             l= -0.05), 'cm'),
+                                                             l= 0), 'cm'),
                                         axis.ticks = element_blank(),
-                                        axis.text = element_blank()),
-                                haynie_fst_plot + ggtitle('') + ylab('Fst'),
-                                ncol = 2, labels = c('A', 'B')), 
-                     plot_grid(mayan_tree_figure + xlim(0, 0.6) , 
-                               fig3_regression_plots_maize_PCs + 
-                                 theme(legend.title = element_text(size = 7),
-                                       legend.text = element_text(size = 7),
-                                       legend.key.height = unit(.15, "cm")), 
-                               ncol = 2, labels = c('C', 'D'), rel_widths = c(1, 1.1)),
-                     nrow = 2, 
-                     rel_heights = c(1, 1.2),
-                     labels = c('', ''))
+                                        axis.text = element_blank(),
+                                        axis.title = element_blank()),
+                                mayan_haynie_map,
+                                mayan_tree_figure + xlim(0, 0.7),
+                                ncol = 3, labels = c('A', 'B', 'C')), 
+                      plot_grid(haynie_fst_plot + ggtitle('') + ylab('Fst'), 
+                                fig3_regression_plots_maize_PCs + 
+                                  theme(legend.title = element_text(size = 8),
+                                        legend.text = element_text(size = 8),
+                                        legend.key.height = unit(.20, "cm"),
+                                        axis.title.y = element_text(size = 8),
+                                        axis.text.x = element_text(size = 7)), 
+                                ncol = 2, labels = c('D', 'E'), rel_widths = c(1, 1)),
+                      nrow = 2, 
+                      rel_heights = c(1.1, 1),
+                      labels = c('', ''))
 )
   
-ggsave('fig3_prototype_101425.pdf',
+ggsave('fig3_prototype_111825.pdf',
        plot = figure_3, 
        device = 'pdf', 
        path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
@@ -419,3 +513,62 @@ maize_coord_coevolution_final <- maize_coord_coevolution_final %>%
     ggtitle('')
 )
 
+### fig4 construction ###################
+yucatan_genotypes_transform = yucatan_genotypes_transform %>% 
+  mutate(S1_164490966_dosage = case_when(
+    S1_164490966 == "0|0" ~ "Ref",
+    S1_164490966 == "0|1" ~ "Het",
+    S1_164490966 == "1|0" ~ "Het",
+    S1_164490966 == "1|1" ~ "Alt"),
+    S2_197685637_dosage = case_when(
+      S2_197685637 == "0|0" ~ "Ref",
+      S2_197685637 == "0|1" ~ "Het",
+      S2_197685637 == "1|0" ~ "Het",
+      S2_197685637 == "1|1" ~ "Alt"))
+
+## yucatan map 
+(yucatan_alleles_fig4 = ggmap(mayan_terrain_kernels) +
+    geom_sf(data = yucatan_genotypes_transform, aes(color = S1_164490966_dosage),
+            size = 0.5,
+            alpha = 0.7,
+            inherit.aes = F) +
+    guides(color = guide_legend(title = "S1_164490966 genotype") ) +
+    scale_color_manual(values = c('red', 'purple', 'blue'))+
+    theme(legend.position = "right",
+          axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 6),
+          axis.text.y = element_text(size = 6),
+          legend.text=element_text(size=8),
+          legend.title = element_text(size = 8),
+          plot.title = element_text(size = 12)) +
+    ggtitle('Yucatan GWAS peak allele') +
+    xlab('') +
+    ylab('')
+)
+
+yucatec_gwas_sig_SNPs = yucatec_gwas_results %>% filter(gwas_sig) %>% pull(SNP)
+
+(figure_4 = plot_grid(plot_grid(manual_manhattan(yucatec_gwas_results, yucatec_gwas_sig_SNPs, 
+                                                 sig = 1e-08, chr_col = 'CHR', bp_col = 'BP', p_col = 'P', title = '') + 
+                                  theme(axis.text.x = element_blank()),
+                                yucatec_chr_plot + 
+                                  labs(title = NULL) +
+                                  theme(panel.grid.major.x = element_blank(),
+                                        panel.grid.minor.x = element_blank())+
+                                  scale_y_reverse(),
+                                  ncol = 1, nrow = 2, labels = c('A', 'B')), 
+                      yucatan_alleles_fig4 + 
+                        theme(legend.position = 'top') + 
+                        ggtitle(''),
+                      ncol = 2, labels = c('', 'C')))
+
+ggsave('fig4_prototype_111025.pdf',
+       plot = figure_4, 
+       device = 'pdf', 
+       path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
+       width = 18, height = 10, units = 'cm', bg = '#ffffff')
+
+ggsave('fig4_prototype_111025.png',
+       plot = figure_4, 
+       device = 'png', 
+       path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
+       width = 18, height = 10, units = 'cm', bg = '#ffffff')

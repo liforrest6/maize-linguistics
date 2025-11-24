@@ -16,7 +16,7 @@ module load R
 
 results_dir='/group/jrigrp10/maize-linguistics/results'
 
-results_files=/group/jrigrp10/maize-linguistics/results/otomanguean_gemma_output/*_GWAS_results.txt
+results_files=/group/jrigrp10/maize-linguistics/results/aztecan_gemma_output/*_GWAS_results.txt
 
 for file in $results_files
 do
