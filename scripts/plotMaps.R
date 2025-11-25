@@ -1,41 +1,11 @@
-library(sp)
-library(ggmap)
-library(sf)
-library(ggtree)
-library(readxl)
-library(ape)
-library(treeio)
-library(rgdal)
-library(ggtext)
-library(cowplot)
+## Script to plot maps
+## author: Forrest Li
 
 source('apikey.R')
 source('languageFunctions.R')
 
 
-mexico_terrain_kernels = get_stadiamap(c(left = -110, bottom = 10, right = -80, top = 27),
-                                zoom = 6, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-
-mexico_terrain_kernels_transformed = ggmap_bbox(mexico_terrain_kernels)
-
-
-
-### make ggtree plots for haynie polygons relative to the Jager dataset ####
-
-aztecan_haynie_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Aztecan-Haynie')
-mayan_haynie_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Mayan-Haynie')
-otomanguean_haynie_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Otomanguean-Haynie')
-
-aztecan_nativelands_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Aztecan')
-mayan_nativelands_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Mayan')
-otomanguean_nativelands_mapping <- read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Otomanguean')
-
-native_mapping = read_excel("../data/master_paired_languages_2.xlsx", sheet = 'MRCA-Tip Mapping')[,c(2, 1, 3, 4, 5)]
-haynie_mapping = read_excel("../data/master_paired_languages_2.xlsx", sheet = 'Haynie-Tip Mapping')[,c(2, 1, 3, 4, 5)]
-
-aztecan_tree = read.newick('../data/trees/Uto-Aztecan.tre')
-mayan_tree = read.newick('../data/trees/Mayan.tre')
-otomanguean_tree = read.newick('../data/trees/Otomanguean.tre')
+# make ggtree plots for haynie polygons relative to the Jager dataset -------------------------
 
 aztecan_haynie_tree_filtered = keep.tip(aztecan_tree, 
                                  c(aztecan_haynie_mapping$`Tree Name`[-which(!aztecan_haynie_mapping$`Tree Name` %in% aztecan_tree$tip.label)],
@@ -130,38 +100,10 @@ ggtree(otomanguean_native_tree_filtered) %<+% native_mapping +
 
 dev.off()
 
-### mapping polygons with accessions ################################################
-nativelands_lang<-readOGR(dsn=path.expand("../data/indigenousLanguages_shp"))
-nativelands_lang = processNativeLandsPolygons(nativelands_lang)
 
-haynie_lang<-readOGR(dsn=path.expand("../data/Languages_NAm"))
-haynie_lang = processHayniePolygons(haynie_lang)
+# mapping language polygons with accessions ------------------------------------------------------
 
-## read accessions from master files
-{
-  otomanguean_NL_accessions = projectMaizeCoordinates(vroom('../results/NL/otomangueanMaster.csv'))
-  otomanguean_haynie_accessions = projectMaizeCoordinates(vroom('../results/Haynie/otomangueanHaynieMaster.csv'))
-  aztecan_NL_accessions = projectMaizeCoordinates(vroom('../results/NL/aztecanMaster.txt'))
-  aztecan_haynie_accessions = projectMaizeCoordinates(vroom('../results/Haynie/aztecanHaynieMaster.csv'))
-  mayan_NL_accessions = projectMaizeCoordinates(vroom('../results/NL/mayanMaster.csv'))
-  mayan_haynie_accessions = projectMaizeCoordinates(vroom('../results/Haynie/mayanHaynieMaster.csv'))
-}
-
-## otomanguean nativelands c(left = -105, bottom = 8, right = -82, top = 24)
-otomanguean_terrain_kernels = get_stadiamap(c(left = -105, bottom = 8, right = -82, top = 24),
-                                            zoom = 6, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-otomanguean_terrain_kernels_transformed = ggmap_bbox(otomanguean_terrain_kernels)
-## aztecan nativelands c(left = -114, bottom = 10, right = -87, top = 33)
-aztecan_terrain_kernels = get_stadiamap(c(left = -114, bottom = 10, right = -87, top = 33),
-                                        zoom = 6, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-aztecan_terrain_kernels_transformed = ggmap_bbox(aztecan_terrain_kernels)
-
-## mayan nativelands c(left = -101, bottom = 12, right = -85, top = 25)
-mayan_terrain_kernels = get_stadiamap(c(left = -101, bottom = 12, right = -85, top = 25),
-                                      zoom = 6, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-mayan_terrain_kernels_transformed = ggmap_bbox(mayan_terrain_kernels)
-
-## make pdf of all maps
+## make pdf of all maps by printing directly to pdf
 pdf('../plots/all_maps.pdf', width = 12, height = 9)
 
 ## otomanguean_maps
@@ -272,14 +214,12 @@ ggmap(mayan_terrain_kernels_transformed) +
 dev.off()
 
 
+# generate table of unique accessions for each ------------------------------------------------
 
 
-### create table of unique accessions for each ########################################################
 master_files = c('aztecan', 'aztecanHaynie', 'mayan', 'mayanHaynie', 'otomanguean', 'otomangueanHaynie')
 accessions_per_file = lapply(master_files, function(master_file) read.csv(sprintf('../results/%sMaster.csv', master_file))$Unique.ID)
 lapply(accessions_per_file, function(x) length(accessions_per_file))
-
-filtered_maize_coord 
 
 outer_coords = fread('../data/feems/outer_coords_mesoamerica_manual.txt')
 outer_coords_shape = st_as_sf(data.frame(lon = outer_coords$V1, lat = outer_coords$V2), coords = c('lon', 'lat'), crs = 4326)
@@ -314,7 +254,9 @@ write.table(data.frame(V1 = filtered_maize_coord_mesoamerica_accessions, V2 = fi
             col.names = F,
             row.names = F, sep = '\t')
 
-### make maps for allele distributions across the landscape
+
+# make maps for allele distributions across the landscape -------------------------------------
+
 
 yucatan_genotypes = as.data.frame(t(fread('../results/mayan_gemma_output/yucatec_genotype.recode.vcf')[,-c(1, 2, 4, 5,6,7,8,9,10)]), optional = T)
 cora_genotypes = as.data.frame(t(fread('../results/aztecan_gemma_output/cora_genotype.recode.vcf')[,-c(1, 2, 4, 5,6,7,8,9,10)]), optional = T)

@@ -1,24 +1,10 @@
 ## figures for manuscript
-library(grid)
-library(gridExtra)
-library(png)
-library(cowplot)
-library(ggplotify)
-library(ggmap)
-library(dplyr)
-library(vroom)
-
 source('languageFunctions.R')
 source('apikey.R')
+source('loadData.R')
 #### manuscript figure for all languages across all mesoamerica ################
 
 ### make map of all language families together ##############
-mesoamerica_terrain_kernels = get_stadiamap(c(left = -114, bottom = 8, right = -82, top = 33),
-                                            zoom = 6, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-mesoamerica_terrain_kernels_transformed = ggmap_bbox(mesoamerica_terrain_kernels)
-
-all_haynie_accessions = rbind(otomanguean_haynie_accessions, aztecan_haynie_accessions, mayan_haynie_accessions)
-all_NL_accessions = rbind(otomanguean_NL_accessions, aztecan_NL_accessions, mayan_NL_accessions)
 
 (all_haynie_polygon_map = ggmap(mesoamerica_terrain_kernels_transformed) +
     coord_sf(crs = st_crs(3857)) +
@@ -461,10 +447,6 @@ ggplot(as.ggplot(rasterGrob(as.raster(readPNG('../plots/feems_haynie_10res_Hayni
 
 #### full americas for both human and maize ###########
 
-americas_terrain_kernels = get_stadiamap(c(left = -120, bottom = -40, right = -35, top = 33),
-                                            zoom = 5, maptype = 'stamen_toner_lite', color = 'bw', messaging = F)
-americas_terrain_kernels_transformed = ggmap_bbox(americas_terrain_kernels)
-
 maize_seed_data <- read.delim("../data/SeeDs_passport_fulll_2017.04.25_16.08.12.txt")
 bankUpdated = read.csv('../data/selected_genotypeIDs.csv')
 colnames(bankUpdated) = c('Unique.ID', 'Sample')
@@ -572,3 +554,4 @@ ggsave('fig4_prototype_111025.png',
        device = 'png', 
        path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
        width = 18, height = 10, units = 'cm', bg = '#ffffff')
+

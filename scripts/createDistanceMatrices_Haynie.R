@@ -2,26 +2,6 @@
 ## adapted to calculate average branch lengths
 ## author: Forrest Li
 
-#loading packages
-library(rgdal)
-library(ape)
-library(ggtree)
-library(treeio)
-library(ggplot2)
-library(rgeos)
-# library(plyr)
-library(dplyr)
-library(sf)
-library(vroom)
-library(data.table)
-library(raster)
-library(RRphylo)
-library(readxl)
-library(tibble)
-library(tidyr)
-library(gdata)
-library(geosphere)
-
 source('languageFunctions.R')
 
 #get maize seed data from SeeDs passport

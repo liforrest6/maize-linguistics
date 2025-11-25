@@ -1,3 +1,4 @@
+## Scripts for generating Mexicana admixture matrices and climate matrices
 
 ## prepare admixture proportion table by removing sample metadata from IDs
 
@@ -33,6 +34,7 @@ for (language in c('aztecan', 'mayan', 'otomanguean', 'aztecanHaynie', 'mayanHay
     write.csv(admix_dist_matrix, sprintf('../results/NL/%s_admixProp_distances.csv', language), row.names = T, quote = F)
 }
 
+## get climate values from SeeD INT climate data
 climate_vals = read.csv('../data/GEA-climate-invnormtransformed.csv')
 
 calculateClimateDist = function(language_matrix, climateValues) {
@@ -59,6 +61,9 @@ for (language in c('aztecan', 'mayan', 'otomanguean', 'aztecanHaynie', 'mayanHay
   else
     write.csv(climate_dist_matrix, sprintf('../results/NL/%s_climate_distances.csv', language), row.names = T, quote = F)
 }
+
+
+# Evaluate correlations between landscape distances -------------------------------------------
 
 
 elevation_test = read.table('../results/NL/otomanguean_elevationSigned_distances.csv', sep = ',', row.names = 1, header = T)

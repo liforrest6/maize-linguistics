@@ -1,21 +1,4 @@
-library(rgdal)
-library(ape)
-library(ggtree)
-library(treeio)
-library(ggplot2)
-library(rgeos)
-# library(plyr)
-library(dplyr)
-library(sf)
-library(vroom)
-library(data.table)
-library(raster)
-library(RRphylo)
-library(tibble)
-library(gdata)
-library(geosphere)
-library(ggmap)
-library(readxl)
+## script for checking centroids of Glottolog candidates lay within polygons from haynie/NL
 
 source('languageFunctions.R')
 source('apikey.R')
@@ -46,34 +29,6 @@ nativelands_lang = processNativeLandsPolygons(nativelands_lang)
 
 # find overlap between maize coordinates and Native Lands polygons via spatial join
 joined_coord_language = st_join(filtered_maize_coord, nativelands_lang)
-
-ggmap_bbox <- function(map) {
-  if (!inherits(map, "ggmap")) stop("map must be a ggmap object")
-  # Extract the bounding box (in lat/lon) from the ggmap to a numeric vector, 
-  # and set the names to what sf::st_bbox expects:
-  map_bbox <- setNames(unlist(attr(map, "bb")), 
-                       c("ymin", "xmin", "ymax", "xmax"))
-  
-  # Coonvert the bbox to an sf polygon, transform it to 3857, 
-  # and convert back to a bbox (convoluted, but it works)
-  bbox_3857 <- st_bbox(st_transform(st_as_sfc(st_bbox(map_bbox, crs = 4326)), 3857))
-  
-  # Overwrite the bbox of the ggmap object with the transformed coordinates 
-  attr(map, "bb")$ll.lat <- bbox_3857["ymin"]
-  attr(map, "bb")$ll.lon <- bbox_3857["xmin"]
-  attr(map, "bb")$ur.lat <- bbox_3857["ymax"]
-  attr(map, "bb")$ur.lon <- bbox_3857["xmax"]
-  map
-}
-
-projectCoordinates = function(coord) {
-  coordinates(coord) = ~ Longitude + Latitude
-  proj4string(coord) = CRS("+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0")
-  coord <- st_as_sf(coord,coords = 1:2)
-  coord <- coord %>% 
-    st_transform(crs = 4326)
-  return(coord)
-}
 
 mayan_glottolog = projectCoordinates(mayan_glottolog)
 aztecan_glottolog = projectCoordinates(aztecan_glottolog)

@@ -10,6 +10,11 @@ library(ggmap)
 library(sf)
 library(ggtree)
 library(readxl)
+library(dplyr)
+library(vroom)
+library(sf)
+library(data.table)
+library(ggplot2)
 library(ape)
 library(treeio)
 library(rgdal)
@@ -22,6 +27,21 @@ library(ggplotify)
 library(stringr)
 library(scattermore)
 library(scales)
+library(grid)
+library(gridExtra)
+library(ggmap)
+library(raster)
+library(RRphylo)
+library(tibble)
+library(gdata)
+library(geosphere)
+library(readxl)
+library(ggtree)
+library(treeio)
+library(tidyverse)
+library(randomForest)
+library(purrr)
+
 
 ## edit bbox for projections on ggmap
 ggmap_bbox <- function(map) {
@@ -336,3 +356,119 @@ generateLanguageMatrix = function(family_language_distance_matrix, family_mrca_l
   results = cbind(left_side, right_side)
 }
 
+
+manual_manhattan = function(results, highlight_SNP_list, chr_filter = NA, sig = 1e-5,
+                            chr_col = 'CHR', bp_col = 'BP', p_col = 'P', 
+                            title = 'Multivariate GEA'){
+  if(!is.na(chr_filter)) {
+    results = results %>% filter((!!sym(chr_col)) == chr_filter)
+  }
+  
+  max_BP <- results |>
+    group_by((!!sym(chr_col))) |>
+    summarise(max_bp = max((!!sym(bp_col)))) |>
+    mutate(bp_add = lag(cumsum(max_bp), default = 0)) |>
+    dplyr::select((!!sym(chr_col)), bp_add)
+  
+  results_add <- results |>
+    inner_join(max_BP, by = chr_col) |>
+    mutate(bp_cum = (!!sym(bp_col)) + bp_add)
+  
+  axis_set <- results_add |>
+    group_by((!!sym(chr_col))) |>
+    summarize(center = mean(bp_cum))
+  
+  ylim <- results_add |>
+    filter((!!sym(p_col)) == min((!!sym(p_col)))) |>
+    mutate(ylim = abs(floor(log10((!!sym(p_col))))) + 2) |>
+    pull(ylim)
+  
+  # sig <- 1e-5
+  
+  (manhplot <- ggplot(results_add, aes(
+    x = bp_cum, y = -log10((!!sym(p_col))),
+    color = as.factor((!!sym(chr_col))), size = -log10((!!sym(p_col)))
+  )) +
+      geom_hline(
+        yintercept = -log10(sig), color = "blue",
+        linetype = "dashed"
+      ) +
+      geom_scattermore(alpha = 1, pointsize = 4.2, pixels = c(1280, 1024)) +
+      # geom_point(alpha = 0.75) +
+      scale_x_continuous(
+        label = axis_set %>% pull((!!sym(chr_col))),
+        breaks = axis_set$center
+      ) +
+      scale_y_continuous(expand = c(0, 0), limits = c(0, ylim)) +
+      scale_color_manual(values = rep(
+        c("grey4", "grey30"),
+        unique(length(axis_set %>% pull(!!sym(chr_col))))
+      )) +
+      # geom_scattermore(data = results_add[results_add$SNP %in% highlight_SNP_list,],
+      #                  alpha = 1, pointsize = 4.2, pixels = c(1280, 1024), color = 'red') + 
+      geom_point(data = results_add[results_add$SNP %in% highlight_SNP_list,],
+                 alpha = 1, size = 0.5, color = 'red') + 
+      # scale_size_continuous(range = c(0.5, 3)) +
+      labs(
+        x = NULL,
+        y = "-log<sub>10</sub>(p)"
+      ) +
+      theme_bw() +
+      theme(
+        legend.position = "none",
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.title.y = element_markdown(),
+        title = element_text(size = 9),
+        axis.text.x = element_text(angle = 0, size = 8, vjust = 0.5)
+      ) +
+      ggtitle(title)
+  )
+  
+}
+
+plotSweeD = function(results, chr, language, pos_intervals = NA,
+                     title = 'Multivariate GEA'){
+  highlight_snps = c()
+  if(all(!is.na(pos_intervals))) {
+    for(interval in pos_intervals) {
+      # highlight_snps = c(highlight_snps, results %>% filter(Position > pos_intervals[[1]][1] &
+      #                                                         Position < pos_intervals[[1]][2]) %>% pull(SNP))
+      highlight_snps = c(highlight_snps, results %>% filter(Position > interval[1] &
+                                                              Position < interval[2]) %>% pull(SNP))
+    }
+    # highlight_snps = results %>% filter(Position > pos_intervals[[1]][1] &
+    #                                       Position < pos_intervals[[1]][2]) %>% 
+    #   pull(SNP)
+    # results$highlighted = results[results$SNP %in% highlight_snps]
+  }
+  ggplot(results, aes(x = Position, y = Likelihood, 
+                      color = SNP %in% highlight_snps)) +
+    # geom_point(alpha = 1) + 
+    geom_scattermore(alpha = 1, pointsize = 4.2, pixels = c(1280, 1024)) + 
+    scale_color_manual(values = c('black', 'red')) +
+    scale_x_continuous(n.breaks = 4, labels = unit_format(unit = "M", scale = 1e-6)) +
+    labs(color='presence in GWAS') +
+    ggtitle(sprintf('%s, chr %d', language, chr)) + 
+    theme_bw() +
+    theme(legend.position="none",
+          axis.text = element_text(size = 5),
+          title = element_text(size = 6),
+          axis.title = element_text(size = 6))
+}
+
+getTopPercentageCLR = function(gwas_results, CHR, min_pos, max_pos, sweed_results) {
+  top_gwas_results = gwas_results %>% filter(CHR == CHR & P < 1e-8) %>% pull(BP)
+  sweed_results = sweed_results %>% filter(Chr == CHR)
+  top_sweed_results = sweed_results %>% 
+    arrange(desc(Likelihood))
+  top_sweed_result = top_sweed_results %>%
+    filter(Position > min_pos & 
+             Position < max_pos) %>% 
+    pull(Position) %>% 
+    first()
+  print(top_sweed_result)
+  CLR_ind = which(top_sweed_results$Position == top_sweed_result)
+  print(CLR_ind)
+  return(CLR_ind / 40000 * 100)  
+}         
