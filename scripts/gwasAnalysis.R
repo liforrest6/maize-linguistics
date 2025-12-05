@@ -65,7 +65,7 @@ yucatec_gwas_results$gwas_sig = (yucatec_gwas_results$CHR == 1 & yucatec_gwas_re
       unique(length(max_bp %>% pull(Chr)))
     )) +
     geom_scattermore(
-      data = subset(sweed_yucatec_results, gwas_sig == TRUE),
+      data = subset(yucatec_gwas_results, gwas_sig == TRUE),
       color = "red", alpha = 1, pointsize = 4.2, pixels = c(1280, 1024)
     ) +
     labs(x = 'Chromosome') +

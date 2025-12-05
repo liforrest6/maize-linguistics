@@ -1,5 +1,5 @@
 ## figures for manuscript
-source('languageFunctions.R')
+source('languageFunctions.R') 
 source('apikey.R')
 source('loadData.R')
 #### manuscript figure for all languages across all mesoamerica ################
@@ -146,16 +146,16 @@ mayan_haynie_tree_figure_transform$edge.length[mayan_haynie_tree_figure_transfor
     scaleClade(161, .6) %>% # scale cakchiquel
     scaleClade(163, .6) %>% # scale tzutujil
     scaleClade(98, .6) %>% # scale chol
-    collapse(126, 'mixed', fill="darkgray") %>% # kiche
-    collapse(161, 'mixed', fill="darkgray") %>%  #cakchiquel
-    collapse(163, 'mixed', fill="darkgray")  %>% #tzutujil
-    collapse(166, 'mixed', fill="darkgray") %>% #kekchi
-    collapse(165, 'mixed', fill="darkgray") %>% #poqom
-    collapse(107, 'mixed', fill="darkgray") %>% #mam
-    collapse(102, 'mixed', fill = 'darkgray') %>% #tzotzil
-    collapse(98, 'mixed', fill = 'darkgray') %>% #chol
-    collapse(88, 'mixed', fill = 'darkgray') %>% #yucatan, then tzeltal
-    collapse(101, 'mixed', fill = 'darkgray') %<+% haynie_mapping +
+    collapse(126, 'min', fill="darkgray") %>% # kiche
+    collapse(161, 'min', fill="darkgray") %>%  #cakchiquel
+    collapse(163, 'min', fill="darkgray")  %>% #tzutujil
+    collapse(166, 'min', fill="darkgray") %>% #kekchi
+    collapse(165, 'min', fill="darkgray") %>% #poqom
+    collapse(107, 'min', fill="darkgray") %>% #mam
+    collapse(102, 'min', fill = 'darkgray') %>% #tzotzil
+    collapse(98, 'min', fill = 'darkgray') %>% #chol
+    collapse(88, 'min', fill = 'darkgray') %>% #yucatan, then tzeltal
+    collapse(101, 'min', fill = 'darkgray') %<+% haynie_mapping +
     geom_tiplab(
       color = 'black',
       geom = 'label', 
@@ -170,8 +170,9 @@ mayan_haynie_tree_figure_transform$edge.length[mayan_haynie_tree_figure_transfor
     xlim(0,3) +
     labs(fill = 'sub_grouping',
          title = 'Mayan Haynie') +
-    theme(plot.margin = unit(c(.1,.1,.1,.1), 'cm')) +
-    ggtitle('')
+    theme(plot.margin = unit(c(.1,.1,.1,.1), 'cm'),
+          title = element_text(size = 7)) +
+    ggtitle('Mayan languages tree')
 )
 
 geom_text(aes(label = node), hjust = 2, size = 2.5) ## node numbers
@@ -255,8 +256,9 @@ fig3_regression_plots_maize_PCs = ggplot(fig3_PVE_maize10PCs %>% filter(dataset 
              mutate(PC = factor(model, levels = c('PC10', 'PC9', 'PC8', 'PC7', 'PC6', 'PC5', 'PC4', 'PC3', 'PC2', 'PC1'))),
            stat="identity",position="stack",
            fill="#999999",
+           color= 'black',
            aes(y=percent, x= 'top 10 maize PCs', color = PC))+
-  scale_color_viridis_d(option = "G") +
+  # scale_color_viridis_d(option = "G") +
   facet_grid(~ language_set) +
   theme_bw() +
   guides(fill = guide_legend(title = "Model: ", position = "bottom", reverse = T),
@@ -320,8 +322,8 @@ mayan_haynie_map = ggmap(mayan_terrain_kernels_transformed) +
         axis.text = element_blank(),
         axis.ticks = element_blank(),
         axis.title = element_blank(),
-        title = element_text(size = 8)) +
-  ggtitle('Haynie Mayan languages')
+        title = element_text(size = 7)) +
+  ggtitle('Mayan languages')
 
 ## with mayan languages map
 (figure_3 = plot_grid(plot_grid(all_haynie_polygon_map +
@@ -337,9 +339,15 @@ mayan_haynie_map = ggmap(mayan_terrain_kernels_transformed) +
                                         axis.ticks = element_blank(),
                                         axis.text = element_blank(),
                                         axis.title = element_blank()),
-                                mayan_haynie_map,
-                                mayan_tree_figure + xlim(0, 0.7),
-                                ncol = 3, labels = c('A', 'B', 'C')), 
+                                plot_grid(
+                                  mayan_haynie_map,
+                                  mayan_tree_figure + xlim(0, 0.7) + 
+                                    theme(plot.margin = unit(c(t = .1, r = .1, l = .1, b = .1), unit = 'cm'),
+                                          plot.title = element_text(hjust = 0.5)),
+                                  labels = c('B', 'C'),
+                                  ncol = 2
+                                ),
+                                ncol = 2, rel_widths = c(1, 2), labels = c('A', '')), 
                       plot_grid(haynie_fst_plot + ggtitle('') + ylab('Fst'), 
                                 fig3_regression_plots_maize_PCs + 
                                   theme(legend.title = element_text(size = 8),
@@ -353,11 +361,18 @@ mayan_haynie_map = ggmap(mayan_terrain_kernels_transformed) +
                       labels = c('', ''))
 )
   
-ggsave('fig3_prototype_111825.pdf',
+ggsave('fig3_prototype_112525.pdf',
        plot = figure_3, 
        device = 'pdf', 
        path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
        width = 18, height = 15, units = 'cm', bg = '#ffffff')
+
+ggsave('fig3_prototype_112525.png',
+       plot = figure_3, 
+       device = 'png', 
+       path = '/Users/liforrest/Documents/Projects/maize_co-evolution/', 
+       width = 18, height = 15, units = 'cm', bg = '#ffffff')
+
 
 ggsave('regression_plots_maize_PCs.pdf',
        plot = regression_plots_maize_PCs, 

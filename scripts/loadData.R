@@ -64,6 +64,26 @@ aztecan_tree = read.newick('../data/trees/Uto-Aztecan.tre')
 mayan_tree = read.newick('../data/trees/Mayan.tre')
 otomanguean_tree = read.newick('../data/trees/Otomanguean.tre')
 
+aztecan_haynie_tree_filtered = keep.tip(aztecan_tree, 
+                                        c(aztecan_haynie_mapping$`Tree Name`[-which(!aztecan_haynie_mapping$`Tree Name` %in% aztecan_tree$tip.label)],
+                                          haynie_mapping %>% filter(`Language Family` == 'Aztecan') %>% pull(`Tip Name`)))
+mayan_haynie_tree_filtered = keep.tip(mayan_tree, 
+                                      c(mayan_haynie_mapping$`Tree Name`[-which(!mayan_haynie_mapping$`Tree Name` %in% mayan_tree$tip.label)],
+                                        haynie_mapping %>% filter(`Language Family` == 'Mayan') %>% pull(`Tip Name`)))
+
+otomanguean_haynie_tree_filtered = keep.tip(otomanguean_tree, 
+                                            c(otomanguean_haynie_mapping$`Tree Name`[-which(!otomanguean_haynie_mapping$`Tree Name` %in% otomanguean_tree$tip.label)],
+                                              haynie_mapping %>% filter(`Language Family` == 'Otomanguean') %>% pull(`Tip Name`)))
+aztecan_native_tree_filtered = keep.tip(aztecan_tree, 
+                                        c(aztecan_nativelands_mapping$`Tree Name`[-which(!aztecan_nativelands_mapping$`Tree Name` %in% aztecan_tree$tip.label)],
+                                          native_mapping %>% filter(`Language Family` == 'Aztecan') %>% pull(`Tip Name`)))
+mayan_native_tree_filtered = keep.tip(mayan_tree, 
+                                      c(mayan_nativelands_mapping$`Tree Name`[-which(!mayan_nativelands_mapping$`Tree Name` %in% mayan_tree$tip.label)],
+                                        native_mapping %>% filter(`Language Family` == 'Mayan') %>% pull(`Tip Name`)))
+
+otomanguean_native_tree_filtered = keep.tip(otomanguean_tree, 
+                                            c(otomanguean_nativelands_mapping$`Tree Name`[-which(!otomanguean_nativelands_mapping$`Tree Name` %in% otomanguean_tree$tip.label)],
+                                              native_mapping %>% filter(`Language Family` == 'Otomanguean') %>% pull(`Tip Name`)))
 
 
 # Load accession lists ------------------------------------------------------------------------

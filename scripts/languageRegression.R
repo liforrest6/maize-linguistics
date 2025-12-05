@@ -34,6 +34,8 @@ for(language in languages_underscore) {
   maize_PVE = rbind(maize_PVE, this_PVE)
   
 }
+maize_PVE = maize_PVE %>% mutate(language_set = 
+                                   recode(language_set, Aztecan = 'Uto-Aztecan', Mayan = 'Mayan', Otomanguean = 'Otomanguean'))
 
 colnames(regression_point_means) = colnames(regression_results)[-c(1)]
 ## labeling of correct languages and datasets
@@ -57,7 +59,7 @@ regression_point_means_pivot = regression_point_means %>%
   separate(col = 'model', into = c('model', 'predictor_type'), sep = '_p', remove = T) %>% 
   mutate(predictor_type = recode(predictor_type, oint.adj.r.squared = 'point values',
                                  coa.adj.r.squared = 'distance matrices'),
-         language_set = recode(language_set, aztecan = 'Aztecan', mayan = 'Mayan', otomanguean = 'Otomanguean'),
+         language_set = recode(language_set, aztecan = 'Uto-Aztecan', mayan = 'Mayan', otomanguean = 'Otomanguean'),
          model = recode(model, language = 'LLEA + language', geo_admix = 'LLEA'))
 
 ## plot R2 for each model against predictor type
